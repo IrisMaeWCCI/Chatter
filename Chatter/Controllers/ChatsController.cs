@@ -120,35 +120,35 @@ namespace Chatter.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
-       
-       public JsonResult TestJson()
-        {
-            //SELECT Chat.UserName, AspNetUsers.UserName
-            //FROM Chat
-            //INNER JOIN AspNetUsers ON Chat.UserName = AspNetUsers.UserName
-            //ORDER BY chat.TimeStamp DESC;
+    }
+}
+       // public JsonResult TestJson()
+       // {
+       //SELECT Chat.UserName, AspNetUsers.UserName
+       //FROM Chat
+       //INNER JOIN AspNetUsers ON Chat.UserName = AspNetUsers.UserName
+       //ORDER BY chat.TimeStamp DESC;
 
 
-            //Now, the LINQ equivalent is declared as a variable (below).
-            //var chats = from Chats in db.Chats
-            //            orderby
-            //Chats.Timestamp descending
-            //select new {
+//Now, the LINQ equivalent is declared as a variable (below).
+//var chats = from Chats in db.Chats
+//            orderby
+//Chats.Timestamp descending
+//select new {
 
-            //    Chats.UserName,
-            //    UserName= AspNetUser.UserName  
-            // };
+//    Chats.UserName,
+//    UserName= AspNetUser.UserName  
+// };
 
-            var output = JsonConvert.SerializeObject(chats.ToList());
+//    var output = JsonConvert.SerializeObject(chats.ToList());
 
 
-            //Finally, we return Json to the view
-            return Json(output, JsonRequestBehavior.AllowGet);
-        }
+//Finally, we return Json to the view
+//    return Json(output, JsonRequestBehavior.AllowGet);
 
-        string jsonTest = "{ \"firstName\": \"Melanie\", \"lastName\": \"McGee\", \"children\": [{ \"firstName\": \"Mira\", \"age\": 13 }, {\"firstName\": \"Ethan\", \"age\": null }] }";
+  
+    /*
 
-         }
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -157,4 +157,7 @@ namespace Chatter.Controllers
             }
             base.Dispose(disposing);
         }
-}
+        
+    
+    */
+   
