@@ -34,7 +34,11 @@
                 })
             }
             );
-        $("#postChats").click(
+        $("#postChats").click(function () {
+            var info = $('#post').val()
+            $.post("@Url.Action("PostChats")", { "Message": info })
+
+        }
             );
     }
     );
