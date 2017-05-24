@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using Chatter.Models;
 using Newtonsoft.Json;
+using Microsoft.AspNet.Identity;
 
 namespace Chatter.Controllers
 {
@@ -21,6 +22,30 @@ namespace Chatter.Controllers
             var chats = db.Chats.Include(c => c.AspNetUser);
             return View(chats.ToList());
         }
+        public JsonResult TestJson()
+        {
+            string jsonTest = "{ \"firstName\": \"Melanie\",\"lastName\":\"McGee\",\"children\": [{\"firstName\": \"Mira\", \"age\": 13},{\"firstName\": \"Ethan\", \"age\": null }] }";
+            return Json(jsonTest, JsonRequestBehavior.AllowGet);
+            //SELECT Chat.UserName, AspNetUsers.UserName
+            //FROM Chat
+            //INNER JOIN AspNetUsers ON Chat.UserName = AspNetUsers.UserName
+            //ORDER BY chat.TimeStamp DESC;
+
+
+            //Now, the LINQ equivalent is declared as a variable (below).
+            var chats = from Chats in db.Chats
+                        join AspNetUsers in db.AspNetUsers on Chats.UserName equals AspNetUsers.UserName
+                        orderby
+                          Chats.Timestamp descending
+                        select new
+                        {
+                            Chats.UserName,
+                            Column1 = AspNetUsers.UserName
+                        };
+        }
+        //    var output = JsonConvert.SerializeObject(chats.ToList());
+        //return Json(output, JsonRequestBehavior.AllowGet);
+
 
         // GET: Chats/Details/5
         public ActionResult Details(int? id)
@@ -38,6 +63,36 @@ namespace Chatter.Controllers
         }
 
         // GET: Chats/Create
+
+        public JsonResult PostChats([Bind(Include = "Message")] Chat chat)
+        {
+
+            //we need to fill out information for our model so we can easily insert it.
+
+            //We need the following for our model / db. The user, the message, and a timestamp.
+            //Since we're using entity framework, all of the Chat table's fields are in a C# model.
+            //We work through that (keeps everything in sync) and the model is what is used to update the database
+            //So it's a bit different than adding information directly to the database itself.
+
+            //We already have the message. It was passed to us via AJAX-> JSON vals from the View
+
+            //Let's add the Timestamp field's value
+            chat.Timestamp = DateTime.Now;
+            //Now, since we have a foreign key join on the aspnetuser table, the 2 models in EF (AspNetUser and Chat) reference each other
+            // Because of this, we need to get a complete user object, not just the userID 
+            string currentUserName = User.Identity.GetUserName();
+            chat.AspNetUser = db.AspNetUsers.FirstOrDefault(x => x.Id == currentUserName);
+
+
+            if (ModelState.IsValid)
+            {
+                db.Chats.Add(chat);
+                db.SaveChanges();
+            }
+            return new JsonResult() { Data = JsonConvert.SerializeObject(chat.ChatID), JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
+
         public ActionResult Create()
         {
             ViewBag.UserName = new SelectList(db.AspNetUsers, "Id", "Email");
@@ -120,34 +175,11 @@ namespace Chatter.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
-    }
-}
-       // public JsonResult TestJson()
-       // {
-       //SELECT Chat.UserName, AspNetUsers.UserName
-       //FROM Chat
-       //INNER JOIN AspNetUsers ON Chat.UserName = AspNetUsers.UserName
-       //ORDER BY chat.TimeStamp DESC;
 
 
-//Now, the LINQ equivalent is declared as a variable (below).
-//var chats = from Chats in db.Chats
-//            orderby
-//Chats.Timestamp descending
-//select new {
-
-//    Chats.UserName,
-//    UserName= AspNetUser.UserName  
-// };
-
-//    var output = JsonConvert.SerializeObject(chats.ToList());
 
 
-//Finally, we return Json to the view
-//    return Json(output, JsonRequestBehavior.AllowGet);
 
-  
-    /*
 
         protected override void Dispose(bool disposing)
         {
@@ -157,7 +189,7 @@ namespace Chatter.Controllers
             }
             base.Dispose(disposing);
         }
-        
-    
-    */
-   
+
+
+    }
+}
